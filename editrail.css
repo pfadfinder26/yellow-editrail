@@ -1,0 +1,399 @@
+/* Editrail extension, https://github.com/pfadfinder26/yellow-editrail */
+/* Based on Datenstrom Yellow, https://datenstrom.se/yellow/ */
+
+:root {
+    --editrail: 3rem;
+    --editrail-wide: 17rem;
+    --editrail-background: #4d4f5a;
+    --editrail-text: #fff;
+    --icon-pages: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 5h18v2.5H3zM3 10.75h18v2.5H3zM3 16.5h18V19H3z'/></svg>");
+    --icon-edit: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z'/></svg>");
+    --icon-create: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z'/></svg>");
+    --icon-delete: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 7h12l-1.1 14H7.1zM9 3h6l1 2h4v2H4V5h4z'/></svg>");
+    --icon-account: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9m0 2c-4.7 0-8.5 2.4-8.5 5.3V21h17v-1.7c0-2.9-3.8-5.3-8.5-5.3'/></svg>");
+    --icon-exit: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 3v2H5v14h5v2H3V3zm6.6 4.6L15.2 9l2 2H8v2h9.2l-2 2 1.4 1.4L21 12z'/></svg>");
+    --icon-status: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 5C6.5 5 2.7 9.6 1.5 12c1.2 2.4 5 7 10.5 7s9.3-4.6 10.5-7c-1.2-2.4-5-7-10.5-7m0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9m0-2a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5'/></svg>");
+    --icon-status-hidden: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M2.1 3.5 3.5 2.1l18.4 18.4-1.4 1.4-3.3-3.3c-1.5.8-3.2 1.3-5.2 1.3-5.5 0-9.3-4.6-10.5-7 .6-1.2 1.9-3 3.9-4.4zM12 5c5.5 0 9.3 4.6 10.5 7-.5 1.1-1.7 2.7-3.4 4L15.6 12.6a3.6 3.6 0 0 0-4.2-4.2L9.1 6.1C10 5.4 11 5 12 5M7.6 9.1l1.7 1.7a3.6 3.6 0 0 0 4.9 4.9l1.3 1.3c-1 .5-2.2.5-3.5.5a6 6 0 0 1-4.4-8.4'/></svg>");
+    --icon-insert: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M13 5v6h6v2h-6v6h-2v-6H5v-2h6V5zM3 3h18v2H3zm0 16h18v2H3z'/></svg>");
+    --icon-twisty: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8 5l8 7-8 7z'/></svg>");
+}
+
+/* The rail with the editing buttons and the page tree, for editors */
+
+.editrail {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    width: var(--editrail);
+    height: 100vh;
+    background-color: var(--editrail-background);
+    color: var(--editrail-text);
+    font-size: 0.875rem;
+    overflow: hidden;
+    transition: width 0.2s ease;
+}
+.editrail:has(.editrail-toggle:checked) {
+    width: var(--editrail-wide);
+}
+body:has(.editrail) .page {
+    padding-right: var(--editrail);
+}
+.editrail-toggle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+.editrail a,
+.editrail .editrail-item,
+.editrail #yellow-pane-create-bar,
+.editrail #yellow-pane-delete-bar {
+    display: block;
+    position: relative;
+    padding: 0.7rem 0.75rem 0.7rem var(--editrail);
+    color: var(--editrail-text);
+    white-space: nowrap;
+    text-decoration: none;
+    overflow: hidden;
+    cursor: pointer;
+}
+.editrail a:hover,
+.editrail a:focus-visible,
+.editrail .editrail-item:hover,
+.editrail .yellow-bar-selected {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--editrail-text);
+    text-decoration: none;
+}
+.editrail:not(:has(.editrail-toggle:checked)) a,
+.editrail:not(:has(.editrail-toggle:checked)) .editrail-item {
+    text-indent: -100em;
+}
+.editrail-item::before,
+.editrail-actions a::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: var(--editrail);
+    height: 1.25rem;
+    margin-top: -0.625rem;
+    background-color: currentColor;
+    -webkit-mask: center/1.25rem no-repeat;
+    mask: center/1.25rem no-repeat;
+}
+.editrail-expand::before {
+    -webkit-mask-image: var(--icon-pages);
+    mask-image: var(--icon-pages);
+}
+#yellow-pane-edit-bar::before {
+    -webkit-mask-image: var(--icon-edit);
+    mask-image: var(--icon-edit);
+}
+#yellow-pane-create-bar::before {
+    -webkit-mask-image: var(--icon-create);
+    mask-image: var(--icon-create);
+}
+#yellow-pane-delete-bar::before {
+    -webkit-mask-image: var(--icon-delete);
+    mask-image: var(--icon-delete);
+}
+#yellow-pane-menu-bar::before {
+    -webkit-mask-image: var(--icon-account);
+    mask-image: var(--icon-account);
+}
+.editrail-exit::before {
+    -webkit-mask-image: var(--icon-exit);
+    mask-image: var(--icon-exit);
+}
+.editrail-actions {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.editrail .yellow-bar,
+.editrail .yellow-bar-left,
+.editrail .yellow-bar-right {
+    float: none;
+    display: block;
+    position: static;
+}
+.editrail .yellow-bar-right a {
+    margin-left: 0;
+}
+.editrail .yellow-bar-banner {
+    display: none;
+}
+body:has(.editrail) > #yellow-bar {
+    display: none;
+}
+.editrail #yellow-bar {
+    display: block;
+}
+.editrail-tree {
+    display: none;
+    flex: 1 1 auto;
+    overflow: auto;
+}
+.editrail:has(.editrail-toggle:checked) .editrail-tree {
+    display: block;
+}
+.editrail-tree ul {
+    margin: 0;
+    padding: 0 0 0 0.75rem;
+    list-style: none;
+}
+.editrail-tree > ul {
+    padding: 0.5rem 0;
+}
+.editrail-page {
+    display: flex;
+    align-items: center;
+}
+.editrail-page:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+.editrail-tree .editrail-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8125rem;
+    text-overflow: ellipsis;
+}
+.editrail-tree .editrail-title:hover {
+    background-color: transparent;
+}
+.editrail-tree .active {
+    font-weight: 700;
+}
+.editrail-tree .unlisted {
+    font-style: italic;
+    opacity: 0.65;
+}
+.editrail-branch {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+.editrail-branch:not(:checked) + .editrail-page + ul {
+    display: none;
+}
+.editrail-twisty {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    background-color: currentColor;
+    cursor: pointer;
+    transform: rotate(90deg);
+    -webkit-mask: var(--icon-twisty) center/0.7rem no-repeat;
+    mask: var(--icon-twisty) center/0.7rem no-repeat;
+}
+.editrail-branch:not(:checked) + .editrail-page .editrail-twisty {
+    transform: none;
+}
+.editrail-tools {
+    display: none;
+    flex: none;
+}
+.editrail-page:hover .editrail-tools,
+.editrail-page:focus-within .editrail-tools {
+    display: flex;
+}
+.editrail .editrail-tool {
+    position: relative;
+    padding: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+.editrail .editrail-tool::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background-color: currentColor;
+    -webkit-mask-size: 0.9rem;
+    mask-size: 0.9rem;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+.editrail .editrail-tool-edit::before {
+    -webkit-mask-image: var(--icon-edit);
+    mask-image: var(--icon-edit);
+}
+.editrail .editrail-tool-create::before {
+    -webkit-mask-image: var(--icon-create);
+    mask-image: var(--icon-create);
+}
+.editrail .editrail-tool-status::before {
+    -webkit-mask-image: var(--icon-status);
+    mask-image: var(--icon-status);
+}
+.editrail .editrail-tool-status-hidden::before {
+    -webkit-mask-image: var(--icon-status-hidden);
+    mask-image: var(--icon-status-hidden);
+}
+.editrail .editrail-tool-delete::before {
+    -webkit-mask-image: var(--icon-delete);
+    mask-image: var(--icon-delete);
+}
+.editrail-exit {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* the panes of the edit extension keep clear of the rail */
+
+body:has(.editrail) {
+    --editrail-now: var(--editrail);
+}
+body:has(.editrail-toggle:checked) {
+    --editrail-now: var(--editrail-wide);
+}
+body:has(.editrail) .yellow-pane {
+    position: fixed !important;
+    border-radius: 0;
+}
+body:has(.editrail) .yellow-arrow {
+    display: none;
+}
+body:has(.editrail) #yellow-pane-edit,
+body:has(.editrail) #yellow-pane-create,
+body:has(.editrail) #yellow-pane-delete {
+    top: 8vh !important;
+    left: 0 !important;
+    right: var(--editrail-now) !important;
+    margin: 0 auto !important;
+    width: min(50vw, 60rem) !important;
+    height: 84vh !important;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.35);
+}
+body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create):not(#yellow-pane-delete) {
+    top: 0.5rem !important;
+    left: auto !important;
+    right: calc(var(--editrail-now) + 0.5rem) !important;
+    width: 22rem !important;
+    height: auto !important;
+}
+@media (max-width: 47.9375rem) {
+    body:has(.editrail) #yellow-pane-edit,
+    body:has(.editrail) #yellow-pane-create,
+    body:has(.editrail) #yellow-pane-delete {
+        top: 2vh !important;
+        width: calc(100vw - var(--editrail-now) - 1rem) !important;
+        height: 96vh !important;
+    }
+    body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create):not(#yellow-pane-delete) {
+        width: calc(100vw - var(--editrail-now) - 1rem) !important;
+    }
+}
+
+
+/* The files of the website, to insert, to delete and to add to */
+
+.editrail-media {
+    display: none;
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+.editrail:has(.editrail-toggle:checked) .editrail-media {
+    display: block;
+}
+.editrail-media-head .editrail-title {
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+}
+.editrail-media-list {
+    display: none;
+}
+.editrail-media:has(.editrail-branch:checked) .editrail-media-list {
+    display: block;
+}
+.editrail-media ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.editrail-file {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0.5rem 0.2rem 1rem;
+}
+.editrail-file:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+.editrail-file img {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    object-fit: cover;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+.editrail-file-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.editrail-file .editrail-tools {
+    display: none;
+}
+.editrail-file:hover .editrail-tools,
+.editrail-file:focus-within .editrail-tools {
+    display: flex;
+}
+.editrail .editrail-tool {
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+}
+.editrail-tool-insert::before {
+    -webkit-mask-image: var(--icon-insert);
+    mask-image: var(--icon-insert);
+}
+/* a file can only be put into a page while a page is being edited */
+.editrail-tool-insert {
+    display: none;
+}
+.editrail-editing .editrail-tool-insert {
+    display: block;
+}
+.editrail-upload {
+    display: block;
+    margin: 0.5rem 0.75rem 1rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+    font-size: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+}
+.editrail-upload input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+
+/* On paper the rail is not there */
+
+@media print {
+    .editrail,
+    #yellow-bar {
+        display: none !important;
+    }
+}
