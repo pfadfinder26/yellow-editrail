@@ -3,7 +3,7 @@
 // Based on Datenstrom Yellow, https://datenstrom.se/yellow/
 
 class YellowEditrail {
-    const VERSION = "0.1.8";
+    const VERSION = "0.1.9";
     const PRIORITY = 16;    // before the edit extension, it answers every request under /edit/
     public $yellow;         // access to API
     public $number;         // number of the page in the tree
@@ -48,11 +48,21 @@ class YellowEditrail {
         if ($name=="header" && $this->isEditable()) {
             $assetLocation = $this->yellow->system->get("coreServerBase").
                 $this->yellow->system->get("coreAssetLocation");
-            return "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"{$assetLocation}editrail.css\" />\n".
-                "<script type=\"text/javascript\" defer=\"defer\" src=\"{$assetLocation}editrail.js\"></script>\n";
+            // the time the file was changed travels in the address, so a browser that kept
+            // the old one fetches this one
+            $style = $assetLocation."editrail.css".$this->getVersion("editrail.css");
+            $script = $assetLocation."editrail.js".$this->getVersion("editrail.js");
+            return "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"".$style."\" />\n".
+                "<script type=\"text/javascript\" defer=\"defer\" src=\"".$script."\"></script>\n";
         }
         if ($name=="footer" && $this->isEditable()) return $this->getRailHtml($page);
         return null;
+    }
+
+    // Return the time a file of this extension was changed, to hang on its address
+    public function getVersion($name) {
+        $fileName = $this->yellow->system->get("coreWorkerDirectory").$name;
+        return is_file($fileName) ? "?v=".filemtime($fileName) : "";
     }
 
     // Return the address of a media file with the time it was changed
