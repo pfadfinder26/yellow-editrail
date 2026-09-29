@@ -135,6 +135,7 @@ body:has(.editrail) > #yellow-bar {
 .editrail-tree {
     display: none;
     flex: 1 1 auto;
+    min-height: 2rem;
     overflow: auto;
 }
 .editrail:has(.editrail-toggle:checked) .editrail-tree {
@@ -154,6 +155,9 @@ body:has(.editrail) > #yellow-bar {
 }
 .editrail-page:hover {
     background-color: rgba(255, 255, 255, 0.15);
+}
+label.editrail-page {
+    cursor: pointer;
 }
 .editrail-tree .editrail-title {
     flex: 1 1 auto;
@@ -178,7 +182,9 @@ body:has(.editrail) > #yellow-bar {
     height: 1px;
     opacity: 0;
 }
-.editrail-branch:not(:checked) + .editrail-page + ul {
+.editrail-branch:not(:checked) + .editrail-page + ul,
+.editrail-branch:not(:checked) + .editrail-page + .editrail-media-list,
+.editrail-branch:not(:checked) + .editrail-page + .editrail-sheet {
     display: none;
 }
 .editrail-twisty {
@@ -298,25 +304,44 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
 
 /* The files of the website, to insert, to delete and to add to */
 
-.editrail-media {
+/* a section that is closed is one line and never less, one that is open shares what is left */
+.editrail-media,
+.editrail-shared {
     display: none;
-    flex: 0 1 auto;
-    min-height: 0;
+    flex: 0 0 auto;
     overflow: auto;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
-.editrail:has(.editrail-toggle:checked) .editrail-media {
+.editrail-media:has(> .editrail-branch:checked),
+.editrail-shared:has(> .editrail-branch:checked) {
+    flex: 1 1 auto;
+    min-height: 4rem;
+}
+.editrail:has(.editrail-toggle:checked) .editrail-media,
+.editrail:has(.editrail-toggle:checked) .editrail-shared {
     display: block;
 }
-.editrail-media-head .editrail-title {
+.editrail-media-head .editrail-title,
+.editrail-shared-head .editrail-title {
     padding: 0.5rem 0.75rem;
     font-weight: 700;
 }
-.editrail-media-list {
-    display: none;
+.editrail-media .editrail-title,
+.editrail-shared .editrail-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.editrail-media:has(.editrail-branch:checked) .editrail-media-list {
-    display: block;
+.editrail-folder .editrail-title,
+.editrail-shared-name .editrail-title {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8125rem;
+}
+.editrail-media ul ul,
+.editrail-shared ul {
+    padding-left: 0.5rem;
 }
 .editrail-media ul {
     margin: 0;
@@ -396,4 +421,61 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
     #yellow-bar {
         display: none !important;
     }
+}
+
+
+/* A shared page is written in a sheet of its own, in the middle of what is left of the window */
+
+.editrail-shared ul {
+    margin: 0;
+    list-style: none;
+}
+.editrail-sheet {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    right: var(--editrail-wide);
+    z-index: 110;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 1rem;
+    width: min(50rem, 80%);
+    max-height: 80vh;
+    transform: translateY(-50%);
+    background-color: var(--editrail-background);
+    color: var(--editrail-text);
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.5);
+}
+.editrail-sheet textarea {
+    box-sizing: border-box;
+    padding: 0.5rem;
+    width: 100%;
+    min-height: 16rem;
+    flex: 1 1 auto;
+    border: 0;
+    color: inherit;
+    background-color: rgba(255, 255, 255, 0.1);
+    font-family: Consolas, Menlo, Courier, monospace;
+    font-size: 0.8125rem;
+    resize: none;
+}
+.editrail-sheet-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+.editrail .editrail-button {
+    padding: 0.4rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: inherit;
+    background: none;
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+}
+.editrail .editrail-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
 }

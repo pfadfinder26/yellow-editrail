@@ -3,7 +3,7 @@
 // Based on Datenstrom Yellow, https://datenstrom.se/yellow/
 
 class YellowEditrail {
-    const VERSION = "0.1.2";
+    const VERSION = "0.1.3";
     const PRIORITY = 16;    // before the edit extension, it answers every request under /edit/
     public $yellow;         // access to API
     public $number;         // number of the page in the tree
@@ -33,6 +33,12 @@ class YellowEditrail {
         $this->yellow->language->setDefault("EditrailInsertFile", "In die Seite einfügen", "de");
         $this->yellow->language->setDefault("EditrailDeleteFile", "Delete file", "en");
         $this->yellow->language->setDefault("EditrailDeleteFile", "Datei löschen", "de");
+        $this->yellow->language->setDefault("EditrailShared", "Building blocks", "en");
+        $this->yellow->language->setDefault("EditrailShared", "Bausteine", "de");
+        $this->yellow->language->setDefault("EditrailSave", "Save", "en");
+        $this->yellow->language->setDefault("EditrailSave", "Speichern", "de");
+        $this->yellow->language->setDefault("EditrailCancel", "Cancel", "en");
+        $this->yellow->language->setDefault("EditrailCancel", "Abbrechen", "de");
     }
 
     // Handle page extra data, the style and the script of the rail
@@ -57,9 +63,24 @@ class YellowEditrail {
         return $location."?v=".filemtime($fileName);
     }
 
-    // Handle request, an editor deletes a file of the media directory
+    // Handle request, an editor deletes a file of the media directory or writes a shared page
     public function onRequest($scheme, $address, $base, $location, $fileName) {
         if ($this->yellow->toolbox->getServer("REQUEST_METHOD")!="POST") return 0;
+        $shared = trim($this->yellow->page->getRequest("editrail-shared"));
+        if (!is_string_empty($shared)) {
+            if (!$this->isEditor($scheme, $address, $base, $location, $fileName)) {
+                return $this->yellow->sendStatus(403);
+            }
+            $fileNameShared = $this->getSharedFileName($location, $shared);
+            if (is_string_empty($fileNameShared)) return $this->yellow->sendStatus(404);
+            $rawData = $this->yellow->page->getRequest("rawdataedit");
+            if (is_string_empty($rawData)) return $this->yellow->sendStatus(400);
+            $rawData = preg_replace("/\r\n|\r/", "\n", $rawData);
+            if (!$this->yellow->toolbox->writeFile($fileNameShared, $rawData)) {
+                return $this->yellow->sendStatus(500);
+            }
+            return $this->yellow->sendStatus(303, $this->yellow->lookup->normaliseUrl($scheme, $address, $base, $location));
+        }
         $media = trim($this->yellow->page->getRequest("editrail-media-delete"));
         if (is_string_empty($media)) return 0;
         if (!$this->isEditor($scheme, $address, $base, $location, $fileName)) {
@@ -99,6 +120,14 @@ class YellowEditrail {
         return $this->yellow->lookup->isFileLocation($location) ? $fileName : "";
     }
 
+    // Return the file of a shared page, empty for anything that is not one of them
+    public function getSharedFileName($location, $name) {
+        foreach ($this->yellow->content->getShared($this->getLocationPage($location)) as $page) {
+            if (basename($page->location)==$name) return $page->fileName;
+        }
+        return "";
+    }
+
     // Return the rail with the editing buttons, the page tree and the files
     public function getRailHtml($page) {
         $this->number = 0;
@@ -112,9 +141,48 @@ class YellowEditrail {
         $output .= "<div class=\"editrail-tree\">\n".
             $this->getTreeHtml($this->yellow->content->getRootLocation($page->location))."</div>\n";
         $output .= $this->getMediaHtml();
+        $output .= $this->getSharedHtml($page);
         $output .= "<a class=\"editrail-item editrail-exit\" href=\"".$this->getLocationPlain($page)."\">".
             $this->yellow->language->getTextHtml("editrailExit")."</a>\n";
         $output .= "</div>\n";
+        return $output;
+    }
+
+    // Return the shared pages, the blocks that stand on more than one page, each with its text
+    public function getSharedHtml($page) {
+        $pages = $this->yellow->content->getShared($this->getLocationPage($page->location));
+        if (count($pages)==0) return "";
+        $id = "editrail-shared-toggle";
+        $token = $this->yellow->toolbox->getCookie("yellowcsrftoken");
+        $output = "<div class=\"editrail-shared\">\n";
+        $output .= "<input class=\"editrail-branch\" type=\"checkbox\" id=\"".$id."\" />";
+        $output .= "<label class=\"editrail-page editrail-shared-head\" for=\"".$id."\">";
+        $output .= "<span class=\"editrail-twisty\" aria-hidden=\"true\"></span>";
+        $output .= "<span class=\"editrail-title\">".$this->yellow->language->getTextHtml("editrailShared")."</span>";
+        $output .= "</label>\n<ul>\n";
+        foreach ($pages as $pageShared) {
+            $name = basename($pageShared->location);
+            $idShared = "editrail-shared-".(++$this->number);
+            $rawData = $this->yellow->toolbox->readFile($pageShared->fileName);
+            $output .= "<li>";
+            $output .= "<input class=\"editrail-branch\" type=\"checkbox\" id=\"".$idShared."\" />";
+            $output .= "<label class=\"editrail-page editrail-shared-name\" for=\"".$idShared."\">".
+                "<span class=\"editrail-title\">".htmlspecialchars($name)."</span></label>";
+            // the text is edited in a sheet of its own, the checkbox above opens and closes it
+            $output .= "<form class=\"editrail-sheet\" method=\"post\" action=\"\">";
+            $output .= "<input type=\"hidden\" name=\"editrail-shared\" value=\"".htmlspecialchars($name)."\" />";
+            $output .= "<input type=\"hidden\" name=\"yellowcsrftoken\" value=\"".htmlspecialchars($token)."\" />";
+            $output .= "<b>".htmlspecialchars($name)."</b>";
+            $output .= "<textarea name=\"rawdataedit\" spellcheck=\"false\">".
+                htmlspecialchars($rawData)."</textarea>";
+            $output .= "<span class=\"editrail-sheet-buttons\">";
+            $output .= "<label class=\"editrail-button\" for=\"".$idShared."\">".
+                $this->yellow->language->getTextHtml("editrailCancel")."</label>";
+            $output .= "<button class=\"editrail-button\" type=\"submit\">".
+                $this->yellow->language->getTextHtml("editrailSave")."</button>";
+            $output .= "</span></form>\n</li>\n";
+        }
+        $output .= "</ul>\n</div>\n";
         return $output;
     }
 
@@ -123,15 +191,27 @@ class YellowEditrail {
         $id = "editrail-media-toggle";
         $output = "<div class=\"editrail-media\">\n";
         $output .= "<input class=\"editrail-branch\" type=\"checkbox\" id=\"".$id."\" />";
-        $output .= "<span class=\"editrail-page editrail-media-head\">";
-        $output .= "<label class=\"editrail-twisty\" for=\"".$id."\" aria-hidden=\"true\"></label>";
+        // the whole line opens and closes the files, not only the twisty
+        $output .= "<label class=\"editrail-page editrail-media-head\" for=\"".$id."\">";
+        $output .= "<span class=\"editrail-twisty\" aria-hidden=\"true\"></span>";
         $output .= "<span class=\"editrail-title\">".$this->yellow->language->getTextHtml("editrailMedia")."</span>";
-        $output .= "</span>\n";
-        $output .= "<div class=\"editrail-media-list\">\n<ul>\n";
-        foreach ($this->getMediaFiles() as $file) {
-            $output .= $this->getMediaFileHtml($file);
+        $output .= "</label>\n";
+        $output .= "<div class=\"editrail-media-list\">\n";
+        foreach ($this->getMediaFiles() as $folder=>$files) {
+            if (!is_string_empty($folder)) {
+                $idFolder = "editrail-folder-".(++$this->number);
+                $output .= "<input class=\"editrail-branch\" type=\"checkbox\" id=\"".$idFolder."\" />";
+                $output .= "<label class=\"editrail-page editrail-folder\" for=\"".$idFolder."\">";
+                $output .= "<span class=\"editrail-twisty\" aria-hidden=\"true\"></span>";
+                $output .= "<span class=\"editrail-title\">".htmlspecialchars($folder)."</span>";
+                $output .= "</label>\n";
+            }
+            $output .= "<ul>\n";
+            foreach ($files as $file) {
+                $output .= $this->getMediaFileHtml($file);
+            }
+            $output .= "</ul>\n";
         }
-        $output .= "</ul>\n";
         $output .= "<label class=\"editrail-upload\">".
             $this->yellow->language->getTextHtml("editrailUpload").
             "<input type=\"file\" multiple=\"multiple\" /></label>\n";
@@ -139,16 +219,23 @@ class YellowEditrail {
         return $output;
     }
 
-    // Return the files that are worth showing, the images of this website
+    // Return the images of this website, by the folder they are in, the loose ones first
     public function getMediaFiles() {
         $location = $this->yellow->system->get("coreImageLocation");
-        $files = array();
+        $folders = array("" => array());
         foreach ($this->yellow->media->index(true) as $file) {
             if (substru($file->getLocation(), 0, strlenu($location))!=$location) continue;
-            $files[] = $file;
+            $name = substru($file->getLocation(), strlenu($location));
+            $folder = strposu($name, "/")!==false ? dirname($name) : "";
+            $folders[$folder][] = $file;
         }
-        usort($files, function ($a, $b) { return strnatcasecmp($a->getLocation(), $b->getLocation()); });
-        return $files;
+        if (count($folders[""])==0) unset($folders[""]);
+        uksort($folders, function ($a, $b) { return strnatcasecmp($a, $b); });
+        foreach ($folders as $folder=>$files) {
+            usort($files, function ($a, $b) { return strnatcasecmp($a->getLocation(), $b->getLocation()); });
+            $folders[$folder] = $files;
+        }
+        return $folders;
     }
 
     // Return one file of the media directory
@@ -160,7 +247,7 @@ class YellowEditrail {
         $output = "<li class=\"editrail-file\">\n";
         $output .= "<img src=\"".htmlspecialchars($this->getMediaUrl($location))."\" alt=\"\" loading=\"lazy\" />";
         $output .= "<span class=\"editrail-file-name\" title=\"".htmlspecialchars($name)."\">".
-            htmlspecialchars($name)."</span>";
+            htmlspecialchars(basename($name))."</span>";
         $output .= "<span class=\"editrail-tools\">";
         $output .= "<button type=\"button\" class=\"editrail-tool editrail-tool-insert\"".
             " data-media=\"".htmlspecialchars($location)."\" data-name=\"".htmlspecialchars($name)."\"".
@@ -237,8 +324,10 @@ class YellowEditrail {
             $this->yellow->system->get("coreServerBase"), $page->location);
     }
 
-    // Check if the website can be edited right now
+    // Check if the website can be edited right now, by somebody who is logged in
     public function isEditable() {
-        return $this->yellow->extension->isExisting("edit") && $this->yellow->extension->get("edit")->editable;
+        if (!$this->yellow->extension->isExisting("edit")) return false;
+        $edit = $this->yellow->extension->get("edit");
+        return $edit->editable && $edit->response->isUser();
     }
 }

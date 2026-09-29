@@ -1,4 +1,4 @@
-# Editrail 0.1.2
+# Editrail 0.1.3
 
 A rail at the side of the window for editors. Developed by Liam Perlaki.
 
@@ -26,11 +26,17 @@ edit it, add a page below it, show or hide it, delete it. The button for showing
 an open or a crossed out eye, and it writes `Status: unlisted` into the page, the way an editor
 would.
 
-**The files** of `media/images` are listed with a thumbnail and a name. A file can be deleted, it
+**The files** of `media/images` are listed with a thumbnail and a name, each folder a branch of
+its own that opens like the branches of the tree. A file can be deleted, it
 goes to the trash of Yellow, not into nothing. New files are added with "Add files", which hands
 them to the edit extension, so the same rules about size and type apply as everywhere. While a page
 is being edited every file also offers to be inserted: the markdown of the file goes where the
 cursor is.
+
+**The building blocks** are the pages of `content/shared`, the blocks that stand on more than one
+page, footer and letterhead and the templates of new pages. They cannot be visited, so they cannot
+be edited the usual way; here each one opens in a sheet of its own and is written as it stands on
+disk, headers and all.
 
 **Leaving editing** goes back to the page without the `/edit` in front of it, it does not log
 anybody out.

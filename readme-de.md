@@ -1,4 +1,4 @@
-# Editrail 0.1.2
+# Editrail 0.1.3
 
 Eine Leiste am Rand des Fensters für Redakteur*innen. Entwickelt von Liam Perlaki.
 
@@ -27,11 +27,17 @@ darunter anlegen, zeigen oder verstecken, löschen. Der Knopf zum Zeigen und Ver
 offenes oder ein durchgestrichenes Auge und schreibt `Status: unlisted` in die Seite, so wie es
 eine Person auch täte.
 
-**Die Dateien** aus `media/images` stehen mit Vorschaubild und Namen da. Eine Datei lässt sich
+**Die Dateien** aus `media/images` stehen mit Vorschaubild und Namen da, jeder Ordner ein eigener
+Ast, der sich öffnet wie die Äste des Baums. Eine Datei lässt sich
 löschen, sie wandert in den Papierkorb von Yellow, nicht ins Nichts. Neue kommen über „Dateien
 hinzufügen“ dazu, das übergibt sie der Edit-Erweiterung, es gelten also dieselben Regeln für Größe
 und Typ wie überall. Während eine Seite bearbeitet wird, bietet jede Datei außerdem an, eingefügt
 zu werden: das Markdown der Datei landet dort, wo der Cursor steht.
+
+**Die Bausteine** sind die Seiten aus `content/shared`, die Blöcke, die auf mehr als einer Seite
+stehen, Fußzeile und Briefkopf und die Vorlagen neuer Seiten. Sie lassen sich nicht aufrufen, also
+auch nicht wie sonst bearbeiten; hier geht jeder in einem eigenen Blatt auf und wird so
+geschrieben, wie er auf der Platte steht, samt Kopf.
 
 **Bearbeiten beenden** führt zurück auf die Seite ohne `/edit` davor, es meldet niemanden ab.
 
