@@ -133,7 +133,8 @@
         var token = getCookie("yellowcsrftoken");
         rail.querySelectorAll(".editrail-tool-insert").forEach(function (button) {
             button.addEventListener("click", function () {
-                insertText("![](" + button.getAttribute("data-media") + ")");
+                insertText(button.getAttribute("data-markdown") ||
+                    "![](" + button.getAttribute("data-media") + ")");
             });
         });
         rail.querySelectorAll(".editrail-tool-delete[data-media]").forEach(function (button) {

@@ -1,4 +1,4 @@
-# Editrail 0.1.6
+# Editrail 0.1.7
 
 Eine Leiste am Rand des Fensters für Redakteur*innen. Entwickelt von Liam Perlaki.
 
@@ -28,13 +28,23 @@ darunter anlegen, zeigen oder verstecken, löschen. Der Knopf zum Zeigen und Ver
 offenes oder ein durchgestrichenes Auge und schreibt `Status: unlisted` in die Seite, so wie es
 eine Person auch täte.
 
-**Die Dateien** aus `media/images` stehen mit Vorschaubild und Namen da, jeder Ordner ein eigener
-Ast, der sich öffnet wie die Äste des Baums. Eine Datei lässt sich
-löschen, sie wandert in den Papierkorb von Yellow, nicht ins Nichts. Neue kommen über „Dateien
-hinzufügen“ dazu, das übergibt sie der Edit-Erweiterung, es gelten also dieselben Regeln für Größe
-und Typ wie überall; eine Datei, die zu groß ist oder von der falschen Art, sagt das, bevor sie
-losgeschickt wird, samt der Größe, die die Website nimmt. Während eine Seite bearbeitet wird, bietet jede Datei außerdem an, eingefügt
-zu werden: das Markdown der Datei landet dort, wo der Cursor steht.
+**Die Dateien** aus `media` stehen da, die Bilder und die Downloads, jeder Ordner ein eigener Ast,
+der sich öffnet wie die Äste des Baums. Ein Bild steht mit Vorschaubild da, alles andere mit einem
+Symbol, und eine Datei, die von irgendwo geholt wurde, steht ohne die Prüfsumme da, die in ihrem
+Dateinamen steckt. Die Vorschaubilder, die diese Website selbst macht, bleiben draußen. Eine Datei
+lässt sich löschen, sie wandert in den Papierkorb von Yellow, nicht ins Nichts. Neue kommen über
+„Dateien hinzufügen“ dazu, das übergibt sie der Edit-Erweiterung, es gelten also dieselben Regeln
+für Größe und Typ wie überall; eine Datei, die zu groß ist oder von der falschen Art, sagt das,
+bevor sie losgeschickt wird, samt der Größe, die die Website nimmt. Während eine Seite bearbeitet
+wird, bietet jede Datei außerdem an, eingefügt zu werden: ein Bild als Bild, alles andere als Link,
+dort wo der Cursor steht.
+
+**Was andere Erweiterungen dazutun:** eine Erweiterung mit einer Methode `onEditrailFile($location)`
+wird zu jeder Datei gefragt und darf eigene Knöpfe zurückgeben, eine mit `onEditrailMedia()` darf
+Zeilen für Dateien zurückgeben, die noch nicht auf dieser Website sind, gebaut wie die Zeilen
+darüber. Die Klassen `editrail-tool-open` und `editrail-tool-reload` tragen ein Symbol dafür. Hier
+weiß niemand, welche Erweiterungen das sind, und eine, die nicht installiert ist, wird einfach
+nicht gefragt.
 
 **Die Bausteine** sind die Seiten aus `content/shared`, die Blöcke, die auf mehr als einer Seite
 stehen, Fußzeile und Briefkopf und die Vorlagen neuer Seiten. Es führt kein Link dorthin, also

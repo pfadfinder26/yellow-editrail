@@ -15,6 +15,9 @@
     --icon-status: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 5C6.5 5 2.7 9.6 1.5 12c1.2 2.4 5 7 10.5 7s9.3-4.6 10.5-7c-1.2-2.4-5-7-10.5-7m0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9m0-2a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5'/></svg>");
     --icon-status-hidden: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M2.1 3.5 3.5 2.1l18.4 18.4-1.4 1.4-3.3-3.3c-1.5.8-3.2 1.3-5.2 1.3-5.5 0-9.3-4.6-10.5-7 .6-1.2 1.9-3 3.9-4.4zM12 5c5.5 0 9.3 4.6 10.5 7-.5 1.1-1.7 2.7-3.4 4L15.6 12.6a3.6 3.6 0 0 0-4.2-4.2L9.1 6.1C10 5.4 11 5 12 5M7.6 9.1l1.7 1.7a3.6 3.6 0 0 0 4.9 4.9l1.3 1.3c-1 .5-2.2.5-3.5.5a6 6 0 0 1-4.4-8.4'/></svg>");
     --icon-insert: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M13 5v6h6v2h-6v6h-2v-6H5v-2h6V5zM3 3h18v2H3zm0 16h18v2H3z'/></svg>");
+    --icon-open: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14zM5 5h5v2H7v10h10v-3h2v5H5z'/></svg>");
+    --icon-reload: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 5V2L7.5 6.5 12 11V8a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8'/></svg>");
+    --icon-file: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 2h8l4 4v16H6zm7 1.5V7h3.5z'/></svg>");
     --icon-twisty: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8 5l8 7-8 7z'/></svg>");
 }
 
@@ -356,6 +359,14 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
 .editrail-file:hover {
     background-color: rgba(255, 255, 255, 0.15);
 }
+.editrail-file-icon {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    background-color: rgba(255, 255, 255, 0.15);
+    -webkit-mask: var(--icon-file) center/1rem no-repeat;
+    mask: var(--icon-file) center/1rem no-repeat;
+}
 .editrail-file img {
     flex: none;
     width: 2rem;
@@ -387,6 +398,19 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
 .editrail-tool-insert::before {
     -webkit-mask-image: var(--icon-insert);
     mask-image: var(--icon-insert);
+}
+/* an extension that has something to say about a file uses these two */
+.editrail .editrail-tool-open::before {
+    -webkit-mask-image: var(--icon-open);
+    mask-image: var(--icon-open);
+}
+.editrail .editrail-tool-reload::before {
+    -webkit-mask-image: var(--icon-reload);
+    mask-image: var(--icon-reload);
+}
+.editrail-tools form {
+    display: flex;
+    margin: 0;
 }
 /* a file can only be put into a page while a page is being edited */
 .editrail-tool-insert {

@@ -3,7 +3,7 @@
 // Based on Datenstrom Yellow, https://datenstrom.se/yellow/
 
 class YellowEditrail {
-    const VERSION = "0.1.6";
+    const VERSION = "0.1.7";
     const PRIORITY = 16;    // before the edit extension, it answers every request under /edit/
     public $yellow;         // access to API
     public $number;         // number of the page in the tree
@@ -95,15 +95,14 @@ class YellowEditrail {
             $this->yellow->toolbox->verifyToken($tokenExpected, $tokenReceived);
     }
 
-    // Return the file name of a media file, empty for anything outside the images
+    // Return the file name of a media file, empty for anything outside the media directory
     public function getMediaFileName($location) {
         $base = $this->yellow->system->get("coreServerBase");
         if (substru($location, 0, strlenu($base))==$base) $location = substru($location, strlenu($base));
-        $images = $this->yellow->system->get("coreImageLocation");
-        if (substru($location, 0, strlenu($images))!=$images) return "";
+        $media = $this->yellow->system->get("coreMediaLocation");
+        if (substru($location, 0, strlenu($media))!=$media) return "";
         if (strposu($location, "..")!==false) return "";
-        $fileName = $this->yellow->system->get("coreMediaDirectory")."images/".
-            substru($location, strlenu($images));
+        $fileName = $this->yellow->system->get("coreMediaDirectory").substru($location, strlenu($media));
         return $this->yellow->lookup->isFileLocation($location) ? $fileName : "";
     }
 
@@ -178,6 +177,7 @@ class YellowEditrail {
             }
             $output .= "</ul>\n";
         }
+        $output .= $this->getMediaExtraHtml();
         $output .= "<label class=\"editrail-upload\">".
             $this->yellow->language->getTextHtml("editrailUpload").
             "<input type=\"file\" multiple=\"multiple\" accept=\"".
@@ -186,12 +186,15 @@ class YellowEditrail {
         return $output;
     }
 
-    // Return the images of this website, by the folder they are in, the loose ones first
+    // Return the files of this website, by the folder they are in, the loose ones first
     public function getMediaFiles() {
-        $location = $this->yellow->system->get("coreImageLocation");
+        $location = $this->yellow->system->get("coreMediaLocation");
+        // the thumbnails are made by this website itself, nobody edits them
+        $thumbnails = $this->yellow->system->get("coreThumbnailLocation");
         $folders = array("" => array());
         foreach ($this->yellow->media->index(true) as $file) {
             if (substru($file->getLocation(), 0, strlenu($location))!=$location) continue;
+            if (substru($file->getLocation(), 0, strlenu($thumbnails))==$thumbnails) continue;
             $name = substru($file->getLocation(), strlenu($location));
             $folder = strposu($name, "/")!==false ? dirname($name) : "";
             $folders[$folder][] = $file;
@@ -208,21 +211,67 @@ class YellowEditrail {
     // Return one file of the media directory
     public function getMediaFileHtml($file) {
         $location = $file->getLocation();
-        $name = substru($location, strlenu($this->yellow->system->get("coreImageLocation")));
+        $name = substru($location, strlenu($this->yellow->system->get("coreMediaLocation")));
         $textInsert = $this->yellow->language->getTextHtml("editrailInsertFile");
         $textDelete = $this->yellow->language->getTextHtml("editrailDeleteFile");
+        $markdown = $this->isImage($name) ? "![](".$location.")" :
+            "[".$this->getMediaFileTitle($name)."](".$location.")";
         $output = "<li class=\"editrail-file\">\n";
-        $output .= "<img src=\"".htmlspecialchars($this->getMediaUrl($location))."\" alt=\"\" loading=\"lazy\" />";
+        if ($this->isImage($name)) {
+            $output .= "<img src=\"".htmlspecialchars($this->getMediaUrl($location))."\" alt=\"\" loading=\"lazy\" />";
+        } else {
+            $output .= "<span class=\"editrail-file-icon\" aria-hidden=\"true\"></span>";
+        }
         $output .= "<span class=\"editrail-file-name\" title=\"".htmlspecialchars($name)."\">".
-            htmlspecialchars(basename($name))."</span>";
+            htmlspecialchars($this->getMediaFileTitle($name))."</span>";
         $output .= "<span class=\"editrail-tools\">";
         $output .= "<button type=\"button\" class=\"editrail-tool editrail-tool-insert\"".
-            " data-media=\"".htmlspecialchars($location)."\" data-name=\"".htmlspecialchars($name)."\"".
+            " data-media=\"".htmlspecialchars($location)."\" data-markdown=\"".htmlspecialchars($markdown)."\"".
             " title=\"".$textInsert."\" aria-label=\"".$textInsert."\"></button>";
         $output .= "<button type=\"button\" class=\"editrail-tool editrail-tool-delete\"".
             " data-media=\"".htmlspecialchars($location)."\"".
             " title=\"".$textDelete."\" aria-label=\"".$textDelete."\"></button>";
+        $output .= $this->getMediaFileExtraHtml($location);
         $output .= "</span>\n</li>\n";
+        return $output;
+    }
+
+    // Return the name of a file as it is worth reading, a file that was fetched from somewhere
+    // carries the beginning of its hash in the name, which says nothing to anybody
+    public function getMediaFileTitle($name) {
+        $name = basename($name);
+        return preg_replace("/-[0-9a-f]{10}(\.[^.]+)?$/", "$1", $name);
+    }
+
+    // Check if a file is a picture, only a picture is worth a thumbnail
+    public function isImage($name) {
+        return in_array(strtoloweru(pathinfo($name, PATHINFO_EXTENSION)),
+            array("png", "jpg", "jpeg", "gif", "webp", "svg", "avif"));
+    }
+
+    // Return the files other extensions know of, which are not on this website yet. An
+    // extension with a method onEditrailMedia hands back rows of its own, built like the ones
+    // above, so it can offer to fetch what it has
+    public function getMediaExtraHtml() {
+        $output = "";
+        foreach ($this->yellow->extension->data as $value) {
+            if (method_exists($value["object"], "onEditrailMedia")) {
+                $output .= strval($value["object"]->onEditrailMedia());
+            }
+        }
+        return $output;
+    }
+
+    // Return what other extensions have to say about a file. An extension with a method
+    // onEditrailFile gets the location of a file and may hand back buttons of its own, the
+    // classes editrail-tool-open and editrail-tool-reload carry an icon for them
+    public function getMediaFileExtraHtml($location) {
+        $output = "";
+        foreach ($this->yellow->extension->data as $value) {
+            if (method_exists($value["object"], "onEditrailFile")) {
+                $output .= strval($value["object"]->onEditrailFile($location));
+            }
+        }
         return $output;
     }
 

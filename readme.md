@@ -1,4 +1,4 @@
-# Editrail 0.1.6
+# Editrail 0.1.7
 
 A rail at the side of the window for editors. Developed by Liam Perlaki.
 
@@ -27,13 +27,21 @@ edit it, add a page below it, show or hide it, delete it. The button for showing
 an open or a crossed out eye, and it writes `Status: unlisted` into the page, the way an editor
 would.
 
-**The files** of `media/images` are listed with a thumbnail and a name, each folder a branch of
-its own that opens like the branches of the tree. A file can be deleted, it
-goes to the trash of Yellow, not into nothing. New files are added with "Add files", which hands
-them to the edit extension, so the same rules about size and type apply as everywhere; a file that
-is too big or of the wrong kind says so before it is sent, with the size the website takes. While a page
-is being edited every file also offers to be inserted: the markdown of the file goes where the
-cursor is.
+**The files** of `media` are listed, the pictures and the downloads alike, each folder a branch of
+its own that opens like the branches of the tree. A picture is shown as a thumbnail, anything else
+carries an icon, and a file that was fetched from somewhere is named without the hash that its file
+name carries. The thumbnails this website makes itself are left out. A file can be deleted, it goes
+to the trash of Yellow, not into nothing. New files are added with "Add files", which hands them to
+the edit extension, so the same rules about size and type apply as everywhere; a file that is too
+big or of the wrong kind says so before it is sent, with the size the website takes. While a page is
+being edited every file also offers to be inserted: a picture as a picture, anything else as a link,
+where the cursor is.
+
+**What other extensions add:** an extension with a method `onEditrailFile($location)` is asked
+about every file and may hand back buttons of its own, and one with `onEditrailMedia()` may hand
+back rows of files that are not on this website yet, built like the rows above. The classes
+`editrail-tool-open` and `editrail-tool-reload` carry an icon for them. Nothing here knows which
+extensions those are, and an extension that is not installed is simply not asked.
 
 **The building blocks** are the pages of `content/shared`, the blocks that stand on more than one
 page, footer and letterhead and the templates of new pages. Nothing links to them, so they are
