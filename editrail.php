@@ -3,7 +3,7 @@
 // Based on Datenstrom Yellow, https://datenstrom.se/yellow/
 
 class YellowEditrail {
-    const VERSION = "0.1.4";
+    const VERSION = "0.1.5";
     const PRIORITY = 16;    // before the edit extension, it answers every request under /edit/
     public $yellow;         // access to API
     public $number;         // number of the page in the tree
@@ -176,7 +176,8 @@ class YellowEditrail {
         }
         $output .= "<label class=\"editrail-upload\">".
             $this->yellow->language->getTextHtml("editrailUpload").
-            "<input type=\"file\" multiple=\"multiple\" /></label>\n";
+            "<input type=\"file\" multiple=\"multiple\" accept=\"".
+            htmlspecialchars($this->yellow->system->get("editUploadExtensions"))."\" /></label>\n";
         $output .= "</div>\n</div>\n";
         return $output;
     }

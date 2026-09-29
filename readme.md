@@ -1,4 +1,4 @@
-# Editrail 0.1.4
+# Editrail 0.1.5
 
 A rail at the side of the window for editors. Developed by Liam Perlaki.
 
@@ -13,8 +13,9 @@ the edit extension, a page tree, the files of the website, and a button that lea
 ## What the rail does
 
 **Slim or wide:** the rail is a column of icons, the top button opens it. Open, every button says
-what it does and the page tree and the files appear. It stays the way it was left, in the browser
-of that editor.
+what it does and the page tree and the files appear. The rail and its sections stay the way they
+were left, in the browser of that editor, so a page that is loaded again after a change looks the
+way it did before.
 
 **The buttons of the edit extension** move into the rail, so editing, creating, deleting and the
 account are where everything else is. "+" and "−" get their names back, and nothing jumps around at

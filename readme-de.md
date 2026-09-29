@@ -1,4 +1,4 @@
-# Editrail 0.1.4
+# Editrail 0.1.5
 
 Eine Leiste am Rand des Fensters für Redakteur*innen. Entwickelt von Liam Perlaki.
 
@@ -14,8 +14,9 @@ Bearbeiten beendet.
 ## Was die Leiste kann
 
 **Schmal oder breit:** die Leiste ist eine Spalte aus Symbolen, der oberste Knopf klappt sie auf.
-Aufgeklappt sagt jeder Knopf, was er tut, und Seitenbaum und Dateien erscheinen. Sie bleibt so, wie
-sie zuletzt war, im Browser dieser Person.
+Aufgeklappt sagt jeder Knopf, was er tut, und Seitenbaum und Dateien erscheinen. Die Leiste und
+ihre Abschnitte bleiben so, wie sie zuletzt waren, im Browser dieser Person, eine Seite, die nach
+einer Änderung neu geladen wird, sieht also aus wie vorher.
 
 **Die Knöpfe der Edit-Erweiterung** wandern in die Leiste, Bearbeiten, Anlegen, Löschen und das
 Konto sind also dort, wo alles andere ist. „+“ und „−“ bekommen ihre Namen zurück, und oben auf der

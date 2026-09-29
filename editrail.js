@@ -5,16 +5,22 @@
 (function () {
     "use strict";
 
-    // the rail stays open or closed the way the editor left it
+    // the rail and its sections stay open or closed the way the editor left them
     function setupEditRailToggle() {
-        var toggle = document.getElementById("editrail-toggle");
+        remember(document.getElementById("editrail-toggle"), "pfadi-editrail");
+        remember(document.getElementById("editrail-media-toggle"), "pfadi-editrail-media");
+        remember(document.getElementById("editrail-shared-toggle"), "pfadi-editrail-shared");
+    }
+
+    // a page is loaded again after every change, a section that was open opens again
+    function remember(toggle, key) {
         if (!toggle) return;
         try {
-            toggle.checked = window.localStorage.getItem("pfadi-editrail")=="open";
+            toggle.checked = window.localStorage.getItem(key)=="open";
         } catch (e) {}
         toggle.addEventListener("change", function () {
             try {
-                window.localStorage.setItem("pfadi-editrail", toggle.checked ? "open" : "closed");
+                window.localStorage.setItem(key, toggle.checked ? "open" : "closed");
             } catch (e) {}
         });
     }
