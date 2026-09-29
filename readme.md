@@ -1,4 +1,4 @@
-# Editrail 0.1.1
+# Editrail 0.1.2
 
 A rail at the side of the window for editors. Developed by Liam Perlaki.
 

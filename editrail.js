@@ -122,50 +122,6 @@
         });
     }
 
-    // a row of cards that scrolls sideways gets a button at each side, it stops at both ends
-    function setupCardScroll(row) {
-        var german = (document.documentElement.lang || "").indexOf("de")===0;
-        var scroller = document.createElement("div");
-        scroller.className = "cards-scroller";
-        row.parentNode.insertBefore(scroller, row);
-        scroller.appendChild(row);
-        var buttons = [-1, 1].map(function (direction) {
-            var button = document.createElement("button");
-            button.type = "button";
-            button.className = "cards-button cards-button-"+(direction<0 ? "previous" : "next");
-            button.setAttribute("aria-label", direction<0 ?
-                (german ? "Zurück" : "Previous") : (german ? "Weiter" : "Next"));
-            button.addEventListener("click", function () {
-                var card = row.firstElementChild;
-                var step = card ? card.getBoundingClientRect().width+24 : row.clientWidth;
-                row.scrollBy({left: direction*step, behavior: "smooth"});
-            });
-            scroller.appendChild(button);
-            return button;
-        });
-        // cards that wait for their date stand in front, the row starts at today
-        var today = row.querySelector(".card:not(.entry-scheduled)");
-        if (today && today!==row.firstElementChild) {
-            var behavior = row.style.scrollBehavior;
-            row.style.scrollBehavior = "auto";
-            row.scrollLeft = today.offsetLeft-row.offsetLeft;
-            row.style.scrollBehavior = behavior;
-        }
-        function update() {
-            var scrollable = row.scrollWidth-row.clientWidth;
-            scroller.classList.toggle("cards-scroller-idle", scrollable<=2);
-            buttons[0].disabled = row.scrollLeft<=2;
-            buttons[1].disabled = row.scrollLeft>=scrollable-2;
-        }
-        row.addEventListener("scroll", update);
-        window.addEventListener("resize", update);
-        update();
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".cards-scroll").forEach(setupCardScroll);
-    });
-
     // the files of the website: insert one into the page that is open, delete one, add new ones
     function setupMedia(rail) {
         var token = getCookie("yellowcsrftoken");
@@ -178,7 +134,7 @@
             button.addEventListener("click", function () {
                 var name = button.getAttribute("data-media");
                 if (!window.confirm(name + "?")) return;
-                submit({"pfadi-media-delete": name, "yellowcsrftoken": token});
+                submit({"editrail-media-delete": name, "yellowcsrftoken": token});
             });
         });
         var upload = rail.querySelector(".editrail-upload input");

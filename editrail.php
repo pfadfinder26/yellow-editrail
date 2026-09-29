@@ -3,7 +3,8 @@
 // Based on Datenstrom Yellow, https://datenstrom.se/yellow/
 
 class YellowEditrail {
-    const VERSION = "0.1.1";
+    const VERSION = "0.1.2";
+    const PRIORITY = 16;    // before the edit extension, it answers every request under /edit/
     public $yellow;         // access to API
     public $number;         // number of the page in the tree
 
@@ -59,9 +60,11 @@ class YellowEditrail {
     // Handle request, an editor deletes a file of the media directory
     public function onRequest($scheme, $address, $base, $location, $fileName) {
         if ($this->yellow->toolbox->getServer("REQUEST_METHOD")!="POST") return 0;
-        $media = trim($this->yellow->page->getRequest("pfadi-media-delete"));
+        $media = trim($this->yellow->page->getRequest("editrail-media-delete"));
         if (is_string_empty($media)) return 0;
-        if (!$this->isEditor($location)) return $this->yellow->sendStatus(403);
+        if (!$this->isEditor($scheme, $address, $base, $location, $fileName)) {
+            return $this->yellow->sendStatus(403);
+        }
         $fileNameMedia = $this->getMediaFileName($media);
         if (is_string_empty($fileNameMedia) || !is_file($fileNameMedia)) return $this->yellow->sendStatus(404);
         if (!$this->yellow->toolbox->deleteFile($fileNameMedia, $this->yellow->system->get("coreTrashDirectory"))) {
@@ -71,10 +74,13 @@ class YellowEditrail {
     }
 
     // Check if the one who asks may change the files, the edit extension knows
-    public function isEditor($location) {
+    public function isEditor($scheme, $address, $base, $location, $fileName) {
         if (!$this->yellow->extension->isExisting("edit")) return false;
         $edit = $this->yellow->extension->get("edit");
-        if (!$edit->response->isUser() || !$edit->response->isUserAccess("upload", $location)) return false;
+        // this runs before the edit extension, which would answer the request itself, so the
+        // login is checked here, with the same method the edit extension uses
+        if (!$edit->checkUserAuth($scheme, $address, $base, $location, $fileName)) return false;
+        if (!$edit->response->isUserAccess("upload", $this->getLocationPage($location))) return false;
         $tokenExpected = $this->yellow->toolbox->getCookie("yellowcsrftoken");
         $tokenReceived = $this->yellow->page->getRequest("yellowcsrftoken");
         return !is_string_empty($tokenExpected) &&
@@ -203,9 +209,9 @@ class YellowEditrail {
         $output = "<span class=\"editrail-tools\">";
         // the button that shows or hides a page says which of the two it is now
         $status = $pageTree->isVisible() ? "status" : "status-hidden";
-        $tools = array("edit" => "pfadiEditPage", "create" => "pfadiCreate",
-            $status => $pageTree->isVisible() ? "pfadiHidePage" : "pfadiShowPage",
-            "delete" => "pfadiDelete");
+        $tools = array("edit" => "editrailEditPage", "create" => "editrailCreate",
+            $status => $pageTree->isVisible() ? "editrailHidePage" : "editrailShowPage",
+            "delete" => "editrailDelete");
         foreach ($tools as $tool=>$text) {
             $text = $this->yellow->language->getTextHtml($text);
             $action = $tool=="status-hidden" ? "status" : $tool;
@@ -214,6 +220,13 @@ class YellowEditrail {
                 " title=\"".$text."\" aria-label=\"".$text."\"></a>";
         }
         return $output."</span>";
+    }
+
+    // Return a location without the editing prefix, "/edit/team/" becomes "/team/"
+    public function getLocationPage($location) {
+        $editLocation = $this->yellow->system->get("editLocation");
+        return substru($location, 0, strlenu($editLocation))==$editLocation ?
+            substru($location, strlenu($editLocation)-1) : $location;
     }
 
     // Return the page location without the editing prefix
