@@ -1,4 +1,4 @@
-# Editrail 0.1.5
+# Editrail 0.1.6
 
 A rail at the side of the window for editors. Developed by Liam Perlaki.
 
@@ -30,7 +30,8 @@ would.
 **The files** of `media/images` are listed with a thumbnail and a name, each folder a branch of
 its own that opens like the branches of the tree. A file can be deleted, it
 goes to the trash of Yellow, not into nothing. New files are added with "Add files", which hands
-them to the edit extension, so the same rules about size and type apply as everywhere. While a page
+them to the edit extension, so the same rules about size and type apply as everywhere; a file that
+is too big or of the wrong kind says so before it is sent, with the size the website takes. While a page
 is being edited every file also offers to be inserted: the markdown of the file goes where the
 cursor is.
 

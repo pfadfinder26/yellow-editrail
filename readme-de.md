@@ -1,4 +1,4 @@
-# Editrail 0.1.5
+# Editrail 0.1.6
 
 Eine Leiste am Rand des Fensters für Redakteur*innen. Entwickelt von Liam Perlaki.
 
@@ -32,7 +32,8 @@ eine Person auch täte.
 Ast, der sich öffnet wie die Äste des Baums. Eine Datei lässt sich
 löschen, sie wandert in den Papierkorb von Yellow, nicht ins Nichts. Neue kommen über „Dateien
 hinzufügen“ dazu, das übergibt sie der Edit-Erweiterung, es gelten also dieselben Regeln für Größe
-und Typ wie überall. Während eine Seite bearbeitet wird, bietet jede Datei außerdem an, eingefügt
+und Typ wie überall; eine Datei, die zu groß ist oder von der falschen Art, sagt das, bevor sie
+losgeschickt wird, samt der Größe, die die Website nimmt. Während eine Seite bearbeitet wird, bietet jede Datei außerdem an, eingefügt
 zu werden: das Markdown der Datei landet dort, wo der Cursor steht.
 
 **Die Bausteine** sind die Seiten aus `content/shared`, die Blöcke, die auf mehr als einer Seite

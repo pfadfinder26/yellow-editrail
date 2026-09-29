@@ -139,7 +139,7 @@
         rail.querySelectorAll(".editrail-tool-delete[data-media]").forEach(function (button) {
             button.addEventListener("click", function () {
                 var name = button.getAttribute("data-media");
-                if (!window.confirm(window.yellow.language.editrailDeleteFileAsk.replace("@file", name))) return;
+                if (!window.confirm(getText("editrailDeleteFileAsk").replace("@file", name))) return;
                 submit({"editrail-media-delete": name, "yellowcsrftoken": token});
             });
         });
@@ -164,6 +164,23 @@
 
     // a file goes to the cloud of this website through the edit extension, which knows the rules
     function uploadFiles(files, token) {
+        // the same rules the edit extension applies, so a file that cannot go says why
+        var sizeMax = window.yellow.system.coreFileSizeMax;
+        var extensions = window.yellow.system.editUploadExtensions.split(/\s*,\s*/);
+        files = files.filter(function (file) {
+            var position = file.name.lastIndexOf(".");
+            var extension = position!==-1 ? file.name.substring(position).toLowerCase() : "";
+            if (extensions.indexOf(extension)===-1) {
+                window.alert(getText("editrailUploadKind").replace("@file", file.name));
+                return false;
+            }
+            if (file.size>sizeMax) {
+                window.alert(getText("editrailUploadSize").replace("@file", file.name)
+                    .replace("@size", Math.floor(sizeMax/1024/1024)+" MB"));
+                return false;
+            }
+            return true;
+        });
         if (files.length===0) return;
         var pending = files.length;
         files.forEach(function (file) {
@@ -195,6 +212,10 @@
         });
         document.body.appendChild(form);
         form.submit();
+    }
+
+    function getText(key) {
+        return window.yellow.language[key] || key;
     }
 
     function getCookie(key) {
