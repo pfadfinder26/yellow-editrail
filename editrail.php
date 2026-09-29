@@ -3,7 +3,7 @@
 // Based on Datenstrom Yellow, https://datenstrom.se/yellow/
 
 class YellowEditrail {
-    const VERSION = "0.1.3";
+    const VERSION = "0.1.4";
     const PRIORITY = 16;    // before the edit extension, it answers every request under /edit/
     public $yellow;         // access to API
     public $number;         // number of the page in the tree
@@ -33,6 +33,8 @@ class YellowEditrail {
         $this->yellow->language->setDefault("EditrailInsertFile", "In die Seite einfügen", "de");
         $this->yellow->language->setDefault("EditrailDeleteFile", "Delete file", "en");
         $this->yellow->language->setDefault("EditrailDeleteFile", "Datei löschen", "de");
+        $this->yellow->language->setDefault("EditrailDeleteFileAsk", "Delete the file @file?", "en");
+        $this->yellow->language->setDefault("EditrailDeleteFileAsk", "Die Datei @file löschen?", "de");
         $this->yellow->language->setDefault("EditrailShared", "Building blocks", "en");
         $this->yellow->language->setDefault("EditrailShared", "Bausteine", "de");
     }

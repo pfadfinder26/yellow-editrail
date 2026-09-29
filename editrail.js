@@ -133,7 +133,7 @@
         rail.querySelectorAll(".editrail-tool-delete[data-media]").forEach(function (button) {
             button.addEventListener("click", function () {
                 var name = button.getAttribute("data-media");
-                if (!window.confirm(name + "?")) return;
+                if (!window.confirm(window.yellow.language.editrailDeleteFileAsk.replace("@file", name))) return;
                 submit({"editrail-media-delete": name, "yellowcsrftoken": token});
             });
         });

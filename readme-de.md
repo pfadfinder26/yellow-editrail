@@ -1,4 +1,4 @@
-# Editrail 0.1.3
+# Editrail 0.1.4
 
 Eine Leiste am Rand des Fensters für Redakteur*innen. Entwickelt von Liam Perlaki.
 
