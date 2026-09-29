@@ -35,10 +35,6 @@ class YellowEditrail {
         $this->yellow->language->setDefault("EditrailDeleteFile", "Datei löschen", "de");
         $this->yellow->language->setDefault("EditrailShared", "Building blocks", "en");
         $this->yellow->language->setDefault("EditrailShared", "Bausteine", "de");
-        $this->yellow->language->setDefault("EditrailSave", "Save", "en");
-        $this->yellow->language->setDefault("EditrailSave", "Speichern", "de");
-        $this->yellow->language->setDefault("EditrailCancel", "Cancel", "en");
-        $this->yellow->language->setDefault("EditrailCancel", "Abbrechen", "de");
     }
 
     // Handle page extra data, the style and the script of the rail
@@ -63,24 +59,9 @@ class YellowEditrail {
         return $location."?v=".filemtime($fileName);
     }
 
-    // Handle request, an editor deletes a file of the media directory or writes a shared page
+    // Handle request, an editor deletes a file of the media directory
     public function onRequest($scheme, $address, $base, $location, $fileName) {
         if ($this->yellow->toolbox->getServer("REQUEST_METHOD")!="POST") return 0;
-        $shared = trim($this->yellow->page->getRequest("editrail-shared"));
-        if (!is_string_empty($shared)) {
-            if (!$this->isEditor($scheme, $address, $base, $location, $fileName)) {
-                return $this->yellow->sendStatus(403);
-            }
-            $fileNameShared = $this->getSharedFileName($location, $shared);
-            if (is_string_empty($fileNameShared)) return $this->yellow->sendStatus(404);
-            $rawData = $this->yellow->page->getRequest("rawdataedit");
-            if (is_string_empty($rawData)) return $this->yellow->sendStatus(400);
-            $rawData = preg_replace("/\r\n|\r/", "\n", $rawData);
-            if (!$this->yellow->toolbox->writeFile($fileNameShared, $rawData)) {
-                return $this->yellow->sendStatus(500);
-            }
-            return $this->yellow->sendStatus(303, $this->yellow->lookup->normaliseUrl($scheme, $address, $base, $location));
-        }
         $media = trim($this->yellow->page->getRequest("editrail-media-delete"));
         if (is_string_empty($media)) return 0;
         if (!$this->isEditor($scheme, $address, $base, $location, $fileName)) {
@@ -120,14 +101,6 @@ class YellowEditrail {
         return $this->yellow->lookup->isFileLocation($location) ? $fileName : "";
     }
 
-    // Return the file of a shared page, empty for anything that is not one of them
-    public function getSharedFileName($location, $name) {
-        foreach ($this->yellow->content->getShared($this->getLocationPage($location)) as $page) {
-            if (basename($page->location)==$name) return $page->fileName;
-        }
-        return "";
-    }
-
     // Return the rail with the editing buttons, the page tree and the files
     public function getRailHtml($page) {
         $this->number = 0;
@@ -148,12 +121,12 @@ class YellowEditrail {
         return $output;
     }
 
-    // Return the shared pages, the blocks that stand on more than one page, each with its text
+    // Return the shared pages, the blocks that stand on more than one page
     public function getSharedHtml($page) {
         $pages = $this->yellow->content->getShared($this->getLocationPage($page->location));
         if (count($pages)==0) return "";
         $id = "editrail-shared-toggle";
-        $token = $this->yellow->toolbox->getCookie("yellowcsrftoken");
+        $editLocation = rtrim($this->yellow->system->get("editLocation"), "/");
         $output = "<div class=\"editrail-shared\">\n";
         $output .= "<input class=\"editrail-branch\" type=\"checkbox\" id=\"".$id."\" />";
         $output .= "<label class=\"editrail-page editrail-shared-head\" for=\"".$id."\">";
@@ -161,26 +134,13 @@ class YellowEditrail {
         $output .= "<span class=\"editrail-title\">".$this->yellow->language->getTextHtml("editrailShared")."</span>";
         $output .= "</label>\n<ul>\n";
         foreach ($pages as $pageShared) {
-            $name = basename($pageShared->location);
-            $idShared = "editrail-shared-".(++$this->number);
-            $rawData = $this->yellow->toolbox->readFile($pageShared->fileName);
-            $output .= "<li>";
-            $output .= "<input class=\"editrail-branch\" type=\"checkbox\" id=\"".$idShared."\" />";
-            $output .= "<label class=\"editrail-page editrail-shared-name\" for=\"".$idShared."\">".
-                "<span class=\"editrail-title\">".htmlspecialchars($name)."</span></label>";
-            // the text is edited in a sheet of its own, the checkbox above opens and closes it
-            $output .= "<form class=\"editrail-sheet\" method=\"post\" action=\"\">";
-            $output .= "<input type=\"hidden\" name=\"editrail-shared\" value=\"".htmlspecialchars($name)."\" />";
-            $output .= "<input type=\"hidden\" name=\"yellowcsrftoken\" value=\"".htmlspecialchars($token)."\" />";
-            $output .= "<b>".htmlspecialchars($name)."</b>";
-            $output .= "<textarea name=\"rawdataedit\" spellcheck=\"false\">".
-                htmlspecialchars($rawData)."</textarea>";
-            $output .= "<span class=\"editrail-sheet-buttons\">";
-            $output .= "<label class=\"editrail-button\" for=\"".$idShared."\">".
-                $this->yellow->language->getTextHtml("editrailCancel")."</label>";
-            $output .= "<button class=\"editrail-button\" type=\"submit\">".
-                $this->yellow->language->getTextHtml("editrailSave")."</button>";
-            $output .= "</span></form>\n</li>\n";
+            // a shared page cannot be visited, but it can be edited, the edit extension does that
+            $location = $editLocation.$pageShared->location;
+            $class = "editrail-title".($this->yellow->page->location==$pageShared->location ? " active" : "");
+            $output .= "<li><span class=\"editrail-page\">";
+            $output .= "<a class=\"".$class."\" href=\"".htmlspecialchars($location)."#pfadi-edit\">".
+                htmlspecialchars(basename($pageShared->location))."</a>";
+            $output .= "</span></li>\n";
         }
         $output .= "</ul>\n</div>\n";
         return $output;
@@ -316,12 +276,14 @@ class YellowEditrail {
             substru($location, strlenu($editLocation)-1) : $location;
     }
 
-    // Return the page location without the editing prefix
+    // Return the page location without the editing prefix, home for a page that cannot be visited
     public function getLocationPlain($page) {
+        $location = $this->yellow->lookup->isSharedLocation($page->location) ?
+            $this->yellow->content->getHomeLocation($page->location) : $page->location;
         return $this->yellow->lookup->normaliseUrl(
             $this->yellow->system->get("coreServerScheme"),
             $this->yellow->system->get("coreServerAddress"),
-            $this->yellow->system->get("coreServerBase"), $page->location);
+            $this->yellow->system->get("coreServerBase"), $location);
     }
 
     // Check if the website can be edited right now, by somebody who is logged in

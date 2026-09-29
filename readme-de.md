@@ -35,9 +35,9 @@ und Typ wie überall. Während eine Seite bearbeitet wird, bietet jede Datei au�
 zu werden: das Markdown der Datei landet dort, wo der Cursor steht.
 
 **Die Bausteine** sind die Seiten aus `content/shared`, die Blöcke, die auf mehr als einer Seite
-stehen, Fußzeile und Briefkopf und die Vorlagen neuer Seiten. Sie lassen sich nicht aufrufen, also
-auch nicht wie sonst bearbeiten; hier geht jeder in einem eigenen Blatt auf und wird so
-geschrieben, wie er auf der Platte steht, samt Kopf.
+stehen, Fußzeile und Briefkopf und die Vorlagen neuer Seiten. Es führt kein Link dorthin, also
+stehen sie hier, und jeder geht in dem Fenster auf, das eine Seite bearbeitet, wie jede andere
+Seite auch.
 
 **Bearbeiten beenden** führt zurück auf die Seite ohne `/edit` davor, es meldet niemanden ab.
 

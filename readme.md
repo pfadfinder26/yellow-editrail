@@ -34,9 +34,8 @@ is being edited every file also offers to be inserted: the markdown of the file 
 cursor is.
 
 **The building blocks** are the pages of `content/shared`, the blocks that stand on more than one
-page, footer and letterhead and the templates of new pages. They cannot be visited, so they cannot
-be edited the usual way; here each one opens in a sheet of its own and is written as it stands on
-disk, headers and all.
+page, footer and letterhead and the templates of new pages. Nothing links to them, so they are
+listed here, and each one opens in the window that edits a page, like any other page.
 
 **Leaving editing** goes back to the page without the `/edit` in front of it, it does not log
 anybody out.

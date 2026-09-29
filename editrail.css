@@ -183,8 +183,7 @@ label.editrail-page {
     opacity: 0;
 }
 .editrail-branch:not(:checked) + .editrail-page + ul,
-.editrail-branch:not(:checked) + .editrail-page + .editrail-media-list,
-.editrail-branch:not(:checked) + .editrail-page + .editrail-sheet {
+.editrail-branch:not(:checked) + .editrail-page + .editrail-media-list {
     display: none;
 }
 .editrail-twisty {
@@ -335,7 +334,7 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
     white-space: nowrap;
 }
 .editrail-folder .editrail-title,
-.editrail-shared-name .editrail-title {
+.editrail-shared li .editrail-title {
     padding: 0.3rem 0.5rem;
     font-size: 0.8125rem;
 }
@@ -414,6 +413,19 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
 }
 
 
+
+
+/* The shared pages, the blocks that stand on more than one page */
+
+.editrail-shared ul {
+    margin: 0;
+    list-style: none;
+}
+.editrail-shared .active {
+    font-weight: 700;
+}
+
+
 /* On paper the rail is not there */
 
 @media print {
@@ -421,61 +433,4 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
     #yellow-bar {
         display: none !important;
     }
-}
-
-
-/* A shared page is written in a sheet of its own, in the middle of what is left of the window */
-
-.editrail-shared ul {
-    margin: 0;
-    list-style: none;
-}
-.editrail-sheet {
-    position: fixed;
-    top: 50%;
-    left: 0;
-    right: var(--editrail-wide);
-    z-index: 110;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    box-sizing: border-box;
-    margin: 0 auto;
-    padding: 1rem;
-    width: min(50rem, 80%);
-    max-height: 80vh;
-    transform: translateY(-50%);
-    background-color: var(--editrail-background);
-    color: var(--editrail-text);
-    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.5);
-}
-.editrail-sheet textarea {
-    box-sizing: border-box;
-    padding: 0.5rem;
-    width: 100%;
-    min-height: 16rem;
-    flex: 1 1 auto;
-    border: 0;
-    color: inherit;
-    background-color: rgba(255, 255, 255, 0.1);
-    font-family: Consolas, Menlo, Courier, monospace;
-    font-size: 0.8125rem;
-    resize: none;
-}
-.editrail-sheet-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-.editrail .editrail-button {
-    padding: 0.4rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: inherit;
-    background: none;
-    font: inherit;
-    font-size: 0.8125rem;
-    cursor: pointer;
-}
-.editrail .editrail-button:hover {
-    background-color: rgba(255, 255, 255, 0.15);
 }
