@@ -1,4 +1,4 @@
-# Editrail 0.1.7
+# Editrail 0.1.8
 
 A rail at the side of the window for editors. Developed by Liam Perlaki.
 
@@ -35,13 +35,16 @@ to the trash of Yellow, not into nothing. New files are added with "Add files", 
 the edit extension, so the same rules about size and type apply as everywhere; a file that is too
 big or of the wrong kind says so before it is sent, with the size the website takes. While a page is
 being edited every file also offers to be inserted: a picture as a picture, anything else as a link,
-where the cursor is.
+where the cursor is. An extension that fetched a file from somewhere may write it differently, the
+link it came from instead of the copy that lies here.
 
 **What other extensions add:** an extension with a method `onEditrailFile($location)` is asked
-about every file and may hand back buttons of its own, and one with `onEditrailMedia()` may hand
-back rows of files that are not on this website yet, built like the rows above. The classes
-`editrail-tool-open` and `editrail-tool-reload` carry an icon for them. Nothing here knows which
-extensions those are, and an extension that is not installed is simply not asked.
+about every file and may hand back buttons of its own, `onEditrailFileMarkdown($location)` writes
+what goes into a page for that file, and `onEditrailMedia()` hands back files that are not on this
+website yet, as `folder`, `name` and `html`, so each one stands in the folder it would land in. The
+classes `editrail-tool-open`, `editrail-tool-reload` and `editrail-file-icon-cloud` carry an icon
+for them. Nothing here knows which extensions those are, and an extension that is not installed is
+simply not asked.
 
 **The building blocks** are the pages of `content/shared`, the blocks that stand on more than one
 page, footer and letterhead and the templates of new pages. Nothing links to them, so they are

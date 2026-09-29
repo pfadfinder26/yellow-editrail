@@ -18,6 +18,7 @@
     --icon-open: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14zM5 5h5v2H7v10h10v-3h2v5H5z'/></svg>");
     --icon-reload: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 5V2L7.5 6.5 12 11V8a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8'/></svg>");
     --icon-file: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 2h8l4 4v16H6zm7 1.5V7h3.5z'/></svg>");
+    --icon-cloud: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6.5 19a4.5 4.5 0 0 1-.6-8.96 6 6 0 0 1 11.64-1.1A4.25 4.25 0 0 1 17.75 19z'/></svg>");
     --icon-twisty: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8 5l8 7-8 7z'/></svg>");
 }
 
@@ -366,6 +367,12 @@ body:has(.editrail) .yellow-pane:not(#yellow-pane-edit):not(#yellow-pane-create)
     background-color: rgba(255, 255, 255, 0.15);
     -webkit-mask: var(--icon-file) center/1rem no-repeat;
     mask: var(--icon-file) center/1rem no-repeat;
+}
+/* an extension marks a file it could fetch but has not fetched yet with this */
+.editrail-file-icon-cloud {
+    -webkit-mask-image: var(--icon-cloud);
+    mask-image: var(--icon-cloud);
+    opacity: 0.6;
 }
 .editrail-file img {
     flex: none;

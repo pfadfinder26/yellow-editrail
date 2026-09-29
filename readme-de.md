@@ -1,4 +1,4 @@
-# Editrail 0.1.7
+# Editrail 0.1.8
 
 Eine Leiste am Rand des Fensters für Redakteur*innen. Entwickelt von Liam Perlaki.
 
@@ -37,14 +37,16 @@ lässt sich löschen, sie wandert in den Papierkorb von Yellow, nicht ins Nichts
 für Größe und Typ wie überall; eine Datei, die zu groß ist oder von der falschen Art, sagt das,
 bevor sie losgeschickt wird, samt der Größe, die die Website nimmt. Während eine Seite bearbeitet
 wird, bietet jede Datei außerdem an, eingefügt zu werden: ein Bild als Bild, alles andere als Link,
-dort wo der Cursor steht.
+dort wo der Cursor steht. Eine Erweiterung, die eine Datei von irgendwo geholt hat, darf etwas
+anderes schreiben, den Link, von dem sie kam, statt der Kopie, die hier liegt.
 
 **Was andere Erweiterungen dazutun:** eine Erweiterung mit einer Methode `onEditrailFile($location)`
-wird zu jeder Datei gefragt und darf eigene Knöpfe zurückgeben, eine mit `onEditrailMedia()` darf
-Zeilen für Dateien zurückgeben, die noch nicht auf dieser Website sind, gebaut wie die Zeilen
-darüber. Die Klassen `editrail-tool-open` und `editrail-tool-reload` tragen ein Symbol dafür. Hier
-weiß niemand, welche Erweiterungen das sind, und eine, die nicht installiert ist, wird einfach
-nicht gefragt.
+wird zu jeder Datei gefragt und darf eigene Knöpfe zurückgeben, `onEditrailFileMarkdown($location)`
+schreibt, was für diese Datei in eine Seite kommt, und `onEditrailMedia()` gibt Dateien zurück, die
+noch nicht auf dieser Website sind, als `folder`, `name` und `html`, jede steht also in dem Ordner,
+in dem sie landen würde. Die Klassen `editrail-tool-open`, `editrail-tool-reload` und
+`editrail-file-icon-cloud` tragen ein Symbol dafür. Hier weiß niemand, welche Erweiterungen das
+sind, und eine, die nicht installiert ist, wird einfach nicht gefragt.
 
 **Die Bausteine** sind die Seiten aus `content/shared`, die Blöcke, die auf mehr als einer Seite
 stehen, Fußzeile und Briefkopf und die Vorlagen neuer Seiten. Es führt kein Link dorthin, also
